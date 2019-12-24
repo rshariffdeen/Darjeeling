@@ -1,56 +1,76 @@
 # -*- coding: utf-8 -*-
 from typing import (Sequence, Iterator, TypeVar, Dict, Any, Sequence, Generic,
-                    Type, ClassVar, Optional)
+                    Type, ClassVar, Optional, NoReturn, Callable, Tuple,
+                    Mapping)
 import abc
+import inspect
 
 import attr
 import bugzoo
-from bugzoo import Bug, Client as BugZooClient, Container as BugZooContainer
 
 from .core import TestOutcome, Test
 from .config import TestSuiteConfig
 from .container import ProgramContainer
 from .environment import Environment
-from .util import dynamically_registered
 
 T = TypeVar('T', bound=Test)
 C = TypeVar('C', bound=TestSuiteConfig)
 
+_NAME_TO_TEST_SUITE: Dict[str, Type['TestSuite']] = {}
+_CONFIG_TO_TEST_SUITE: Dict[Type['TestSuiteConfig'], Type['TestSuite']] = {}
 
-@dynamically_registered('CONFIG', length=None, iterator=None,
-                        lookup='_for_config_type')
-class TestSuite(Generic[T, C]):
-    CONFIG: ClassVar[Type[C]]
-    _environment: Environment
 
-    def __init__(self, environment: Environment, tests: Sequence[T]) -> None:
-        self.__name_to_test = {t.name: t for t in tests}
-        self._environment = environment
+def register(name: str) -> Callable[[Type['TestSuite']], Type['TestSuite']]:
+    """Registers a test suite under a given name."""
+    def register_hook(class_: Type['TestSuite']) -> Type['TestSuite']:
+        def err(message: str) -> NoReturn:
+            m = f"Failed to register test suite [{class_.__name__}]: {message}"
+            raise TypeError(m)
 
-    @staticmethod
-    def _for_config_type(type_config: Type[TestSuiteConfig]
-                        ) -> Type['TestSuite']:
-        """Fetches the TestSuite class for a given TestSuiteConfig class."""
-        ...
+        if name in _NAME_TO_TEST_SUITE:
+            err(f'name already in use [{name}]')
+        if not issubclass(class_, TestSuite):
+            err('class is not a subclass of TestSuite')
+        if inspect.isabstract(class_):
+            err('cannot register abstract class')
+        if not hasattr(class_, 'Config'):
+            err('class does not have nested Config class')
+        if not issubclass(class_.Config, TestSuiteConfig):
+             err('nested Config class must not be abstract')
+        if class_.Config in _CONFIG_TO_TEST_SUITE:
+            err('nested Config class already in use by another test suite class')  # noqa
+
+        _NAME_TO_TEST_SUITE[name] = class_
+        _CONFIG_TO_TEST_SUITE[class_.Config] = class_
+        return class_
+
+    return register_hook
+
+
+class TestSuite(Generic[T]):
+    Config: ClassVar[Type[TestSuiteConfig]]
 
     @classmethod
     @abc.abstractmethod
     def from_config(cls,
-                    cfg: C,
+                    cfg: TestSuiteConfig,
                     environment: Environment,
-                    bug: Bug
+                    bug: bugzoo.Bug
                     ) -> 'TestSuite':
-        type_ = TestSuite._for_config_type(cfg.__class__)
-        return type_.from_config(cfg, environment, bug)
+        test_suite_class = _CONFIG_TO_TEST_SUITE[cfg.__class__]
+        return test_suite_class.from_config(cfg, environment, bug)
 
+    @abc.abstractmethod
     def __len__(self) -> int:
-        return len(self.__name_to_test)
+        ...
 
+    @abc.abstractmethod
     def __iter__(self) -> Iterator[Test]:
-        yield from self.__name_to_test.values()
+        ...
 
+    @abc.abstractmethod
     def __getitem__(self, name: str) -> Test:
-        return self.__name_to_test[name]
+        ...
 
     @abc.abstractmethod
     def execute(self,
@@ -77,19 +97,8 @@ class TestSuite(Generic[T, C]):
         TestOutcome
             A concise summary of the test execution.
         """
-        raise NotImplementedError
+        ...
 
-
-@attr.s(frozen=True)
-class BugZooTestSuiteConfig(TestSuiteConfig):
-    NAME = 'bugzoo'
-
-    @classmethod
-    def from_dict(cls,
-                  d: Dict[str, Any],
-                  dir_: Optional[str] = None
-                  ) -> TestSuiteConfig:
-        return BugZooTestSuiteConfig()
 
 
 @attr.s(frozen=True, slots=True, auto_attribs=True)
@@ -101,17 +110,40 @@ class BugZooTest(Test):
         return self._test.name
 
 
-class BugZooTestSuite(TestSuite):
-    CONFIG = BugZooTestSuiteConfig
+@register('bugzoo')
+@attr.s(frozen=True, auto_attribs=True, slots=True)
+class BugZooTestSuite(TestSuite[BugZooTest]):
+    _environment: Environment
+    _tests: Tuple[BugZooTest, ...]
+    _name_to_test: Mapping[str, BugZooTest] = attr.ib(repr=False)
+
+    @attr.s(frozen=True)
+    class Config(TestSuiteConfig):
+        @classmethod
+        def from_dict(cls,
+                      d: Dict[str, Any],
+                      dir_: Optional[str] = None
+                      ) -> TestSuiteConfig:
+            return cls()
 
     @classmethod
     def from_config(cls,
-                    cfg: BugZooTestSuiteConfig,
+                    cfg: TestSuiteConfig,
                     environment: Environment,
-                    bug: Bug
+                    bug: bugzoo.Bug
                     ) -> 'TestSuite':
         tests = tuple(BugZooTest(t) for t in bug.tests)
-        return BugZooTestSuite(environment, tests)
+        name_to_test = {t.name: t for t in tests}
+        return BugZooTestSuite(environment, tests, name_to_test)
+
+    def __len__(self) -> int:
+        return len(self._name_to_test)
+
+    def __iter__(self) -> Iterator[Test]:
+        yield from self._tests
+
+    def __getitem__(self, name: str) -> Test:
+        return self._name_to_test[name]
 
     def execute(self,
                 container: ProgramContainer,
