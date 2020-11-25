@@ -24,7 +24,7 @@ Features
   to quickly and safely evaluate patches without executing arbitrary code on
   your machine.
 * *Custom Repair Templates:* uses
-  `Rooibos <https://github.com/squaresLab/Rooibos>`_ to support rich, custom
+  `Comby <https://github.com/comby-tools/comby>`_ to support rich, custom
   repair templates for arbitrary languages.
 * *Asynchronous Evaluation:* accelerates patch evaluation by spreading the
   load across multiple threads.
@@ -495,7 +495,7 @@ statement-based schemas.
      - type: prepend-statement
 
 The configuration format also supports custom repair templates via
-match-rewrite patterns for `Rooibos <https://github.com/squaresLab/Rooibos>`_.
+match-rewrite patterns for `Comby <https://github.com/comby-tools/comby>`_.
 Below is an example of a simple repair template that replaces all calls to
 :code:`foo` with calls to :code:`bar`.
 
@@ -506,7 +506,7 @@ Below is an example of a simple repair template that replaces all calls to
      rewrite: "bar(:[1])"
 
 The :code:`type` property is set to :code:`template` to indicate that this schema
-represents a Rooibos-based repair template. The :code:`match` and :code:`rewrite`
+represents a Comby-based repair template. The :code:`match` and :code:`rewrite`
 sections are used to specify match and rewrite patterns, respectively.
 
 Darjeeling also provides support for naive line-based transformations,
