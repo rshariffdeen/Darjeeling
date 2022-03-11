@@ -5,6 +5,7 @@ candidate patches, and for performing individual test executions.
 """
 __all__ = ('Evaluator',)
 
+import os
 from typing import (Tuple, List, Optional, Iterator, Set, Sequence, Union,
                     FrozenSet)
 from concurrent.futures import Future
@@ -52,6 +53,7 @@ class Evaluator(DarjeelingEventProducer):
                  ) -> None:
         super().__init__()
         self.__problem = problem
+        self.__count = 0
         self.__resources = resources
         self.__program = problem.program
         self.__test_suite = problem.test_suite
@@ -171,7 +173,14 @@ class Evaluator(DarjeelingEventProducer):
     def _evaluate(self, candidate: Candidate) -> CandidateOutcome:
         outcomes = self.__outcomes
         patch = candidate.to_diff()
+        with open("{}.patch".format(self.__count), "w") as patch_file:
+            patch_file.writelines(f"{patch}")
+        self.__count = self.__count + 1
         logger.info(f"evaluating candidate: {candidate}\n{patch}\n")
+        outcome_build = BuildOutcome(False, 0)
+        return CandidateOutcome(outcome_build,
+                                TestOutcomeSet(),
+                                False)
 
         # select a subset of tests to use for this evaluation
         tests, remainder = self._select_tests()
