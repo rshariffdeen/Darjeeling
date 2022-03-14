@@ -165,7 +165,7 @@ class ProgramSource(Mapping[str, ProgramSourceFile]):
             diff = ''.join(unified_diff(original.splitlines(True),
                                         mutated.splitlines(True),
                                         filename,
-                                        filename))
+                                        filename, n=0))
             file_diffs.append(diff)
         return Patch.from_unidiff('\n'.join(file_diffs))
 
