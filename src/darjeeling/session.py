@@ -33,6 +33,7 @@ class Session(DarjeelingEventProducer):
     resources: ResourceUsageTracker = attr.ib()
     _problem: Problem = attr.ib()
     terminate_early: bool = attr.ib(default=True)
+    dump_all: bool = attr.ib(default=False)
     _patches: List[Candidate] = attr.ib(factory=list)
 
     def __attrs_post_init__(self) -> None:
@@ -66,6 +67,7 @@ class Session(DarjeelingEventProducer):
         logger.info(f"using coverage config: {cfg.coverage}")
         logger.info(f"running redundant tests? {cfg.run_redundant_tests}")
         logger.info(f"using random number generator seed: {cfg.seed}")
+        logger.info(f"dump mode: {cfg.dump_all}")
 
         if not cfg.terminate_early:
             logger.info("search will continue after an acceptable patch has been discovered")
@@ -135,14 +137,16 @@ class Session(DarjeelingEventProducer):
                                     resources=resources,
                                     transformations=transformations,
                                     threads=cfg.threads,
-                                    run_redundant_tests=cfg.run_redundant_tests)
+                                    run_redundant_tests=cfg.run_redundant_tests,
+                                    dump_all=cfg.dump_all)
 
         # build session
         return Session(dir_patches=dir_patches,
                        resources=resources,
                        problem=problem,
                        searcher=searcher,
-                       terminate_early=cfg.terminate_early)
+                       terminate_early=cfg.terminate_early,
+                       dump_all=cfg.dump_all)
 
     @property
     def snapshot(self) -> Snapshot:

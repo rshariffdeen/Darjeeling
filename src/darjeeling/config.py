@@ -144,6 +144,7 @@ class Config:
     seed: int = attr.ib(default=0)
     optimizations: OptimizationsConfig = attr.ib(factory=OptimizationsConfig)
     terminate_early: bool = attr.ib(default=True)
+    dump_all: bool = attr.ib(default=False)
     threads: int = attr.ib(default=1)
     run_redundant_tests: bool = attr.ib(default=False)
 
@@ -175,7 +176,8 @@ class Config:
                  run_redundant_tests: bool = False,
                  limit_candidates: Optional[int] = None,
                  limit_time_minutes: Optional[int] = None,
-                 dir_patches: Optional[str] = None
+                 dir_patches: Optional[str] = None,
+                 dump_all: bool = False
                  ) -> 'Config':
         """Loads a configuration from a YAML dictionary.
 
@@ -271,4 +273,5 @@ class Config:
                       coverage=coverage,
                       search=search,
                       optimizations=opts,
-                      dir_patches=dir_patches)
+                      dir_patches=dir_patches,
+                      dump_all=dump_all)

@@ -49,7 +49,8 @@ class Evaluator(DarjeelingEventProducer):
                  terminate_early: bool = True,
                  sample_size: Optional[Union[float, int]] = None,
                  outcomes: Optional[CandidateOutcomeStore] = None,
-                 run_redundant_tests: bool = False
+                 run_redundant_tests: bool = False,
+                 dump_all: bool = False,
                  ) -> None:
         super().__init__()
         self.__problem = problem
@@ -61,6 +62,7 @@ class Evaluator(DarjeelingEventProducer):
             concurrent.futures.ThreadPoolExecutor(max_workers=num_workers)
         self.__num_workers = num_workers
         self.__terminate_early = terminate_early
+        self.__dump_all = dump_all
         self.__outcomes = outcomes or CandidateOutcomeStore()
         self.__run_redundant_tests = run_redundant_tests
 
@@ -173,14 +175,16 @@ class Evaluator(DarjeelingEventProducer):
     def _evaluate(self, candidate: Candidate) -> CandidateOutcome:
         outcomes = self.__outcomes
         patch = candidate.to_diff()
-        with open("{}.patch".format(self.__count), "w") as patch_file:
-            patch_file.writelines(f"{patch}")
-        self.__count = self.__count + 1
-        logger.info(f"evaluating candidate: {candidate}\n{patch}\n")
-        outcome_build = BuildOutcome(False, 0)
-        return CandidateOutcome(outcome_build,
-                                TestOutcomeSet(),
-                                False)
+        if self.__dump_all:
+            with open("patches/{}.patch".format(self.__count), "w") as patch_file:
+                patch_file.writelines(f"{patch}")
+            self.__resources.candidates += 1
+            self.__count = self.__count + 1
+            logger.info(f"evaluating candidate: {candidate}\n{patch}\n")
+            outcome_build = BuildOutcome(False, 0)
+            return CandidateOutcome(outcome_build,
+                                    TestOutcomeSet(),
+                                    False)
 
         # select a subset of tests to use for this evaluation
         tests, remainder = self._select_tests()

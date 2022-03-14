@@ -152,6 +152,9 @@ class BaseController(cement.Controller):
             (['--print-patch'],
              {'help': 'prints the first acceptable patch that was found',
               'action': 'store_true'}),
+            (['--dump-all'],
+             {'dest': 'dump_all', 'help': 'dump all patches without validation',
+              'action': 'store_true'}),
             (['--log-to-file'],
              {'help': 'path to store the log file.',
               'type': str}),
@@ -203,6 +206,7 @@ class BaseController(cement.Controller):
         """
         filename: str = self.app.pargs.filename
         interactive: bool = self.app.pargs.interactive
+        dump_all: bool = self.app.pargs.dump_all
         seed: Optional[int] = self.app.pargs.seed
         terminate_early: bool = self.app.pargs.terminate_early
         threads: Optional[int] = self.app.pargs.threads
@@ -249,6 +253,7 @@ class BaseController(cement.Controller):
                               threads=threads,
                               seed=seed,
                               terminate_early=terminate_early,
+                              dump_all=dump_all,
                               limit_candidates=limit_candidates,
                               limit_time_minutes=limit_time_minutes,
                               dir_patches=dir_patches)
@@ -290,6 +295,8 @@ class BaseController(cement.Controller):
                 print(str(first_patch))
 
             if session.has_found_patch:
+                sys.exit(0)
+            elif not session.has_found_patch and dump_all:
                 sys.exit(0)
             else:
                 sys.exit(1)

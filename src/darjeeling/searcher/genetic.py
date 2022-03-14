@@ -57,7 +57,8 @@ class GeneticSearcherConfig(SearcherConfig):
               transformations: ProgramTransformations,
               *,
               threads: int = 1,
-              run_redundant_tests: bool = False
+              run_redundant_tests: bool = False,
+              dump_all: bool = False
               ) -> Searcher:
         return GeneticSearcher(problem=problem,
                                resources=resources,
@@ -69,7 +70,8 @@ class GeneticSearcherConfig(SearcherConfig):
                                rate_mutation=self.rate_mutation,
                                tournament_size=self.tournament_size,
                                test_sample_size=self.sample_size,
-                               run_redundant_tests=run_redundant_tests)
+                               run_redundant_tests=run_redundant_tests,
+                               dump_all=dump_all)
 
 
 class GeneticSearcher(Searcher):
@@ -85,7 +87,8 @@ class GeneticSearcher(Searcher):
                  tournament_size: int = 2,
                  threads: int = 1,
                  run_redundant_tests: bool = True,
-                 test_sample_size: Optional[Union[int, float]] = None
+                 test_sample_size: Optional[Union[int, float]] = None,
+                 dump_all: bool = False
                  ) -> None:
         self.__population_size = population_size
         self.__num_generations = num_generations
@@ -106,7 +109,8 @@ class GeneticSearcher(Searcher):
                          threads=threads,
                          run_redundant_tests=run_redundant_tests,
                          test_sample_size=test_sample_size,
-                         terminate_early=False)
+                         terminate_early=False,
+                         dump_all=dump_all)
 
     @property
     def population_size(self) -> int:
