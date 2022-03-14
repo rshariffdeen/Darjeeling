@@ -42,14 +42,16 @@ class ExhaustiveSearcherConfig(SearcherConfig):
               *,
               threads: int = 1,
               run_redundant_tests: bool = False,
-              dump_all: bool = False
+              dump_all: bool = False,
+              dir_patches: str = ""
               ) -> Searcher:
         return ExhaustiveSearcher(problem=problem,
                                   resources=resources,
                                   transformations=transformations,
                                   threads=threads,
                                   run_redundant_tests=run_redundant_tests,
-                                  dump_all=dump_all)
+                                  dump_all=dump_all,
+                                  dir_patches=dir_patches)
 
 
 class ExhaustiveSearcher(Searcher):
@@ -60,7 +62,8 @@ class ExhaustiveSearcher(Searcher):
                  *,
                  threads: int = 1,
                  run_redundant_tests: bool = False,
-                 dump_all: bool = False
+                 dump_all: bool = False,
+                 dir_patches: str = ""
                  ) -> None:
         # FIXME for now!
         self.__candidates = self.all_single_edit_patches(problem, transformations)
@@ -68,7 +71,8 @@ class ExhaustiveSearcher(Searcher):
                          resources=resources,
                          threads=threads,
                          run_redundant_tests=run_redundant_tests,
-                         dump_all=dump_all)
+                         dump_all=dump_all,
+                         dir_patches=dir_patches)
 
     @staticmethod
     def all_single_edit_patches(problem: 'Problem',

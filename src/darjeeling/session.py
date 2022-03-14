@@ -138,7 +138,8 @@ class Session(DarjeelingEventProducer):
                                     transformations=transformations,
                                     threads=cfg.threads,
                                     run_redundant_tests=cfg.run_redundant_tests,
-                                    dump_all=cfg.dump_all)
+                                    dump_all=cfg.dump_all,
+                                    dir_patches=cfg.dir_patches)
 
         # build session
         return Session(dir_patches=dir_patches,
@@ -146,7 +147,8 @@ class Session(DarjeelingEventProducer):
                        problem=problem,
                        searcher=searcher,
                        terminate_early=cfg.terminate_early,
-                       dump_all=cfg.dump_all)
+                       dump_all=cfg.dump_all
+                       )
 
     @property
     def snapshot(self) -> Snapshot:

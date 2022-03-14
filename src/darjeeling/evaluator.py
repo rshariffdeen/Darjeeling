@@ -51,6 +51,7 @@ class Evaluator(DarjeelingEventProducer):
                  outcomes: Optional[CandidateOutcomeStore] = None,
                  run_redundant_tests: bool = False,
                  dump_all: bool = False,
+                 dir_patches: str = ""
                  ) -> None:
         super().__init__()
         self.__problem = problem
@@ -63,6 +64,7 @@ class Evaluator(DarjeelingEventProducer):
         self.__num_workers = num_workers
         self.__terminate_early = terminate_early
         self.__dump_all = dump_all
+        self.__dir_patches = dir_patches
         self.__outcomes = outcomes or CandidateOutcomeStore()
         self.__run_redundant_tests = run_redundant_tests
 
@@ -176,7 +178,7 @@ class Evaluator(DarjeelingEventProducer):
         outcomes = self.__outcomes
         patch = candidate.to_diff()
         if self.__dump_all:
-            with open("patches/{}.patch".format(self.__count), "w") as patch_file:
+            with open("{}/{}.patch".format(self.__dir_patches, self.__count), "w") as patch_file:
                 patch_file.writelines(f"{patch}")
             self.__resources.candidates += 1
             self.__count = self.__count + 1

@@ -29,7 +29,8 @@ class Searcher(DarjeelingEventProducer, abc.ABC):
                  terminate_early: bool = True,
                  test_sample_size: Optional[Union[int, float]] = None,
                  run_redundant_tests: bool = True,
-                 dump_all: bool = False
+                 dump_all: bool = False,
+                 dir_patches: str = ""
                  ) -> None:
         """Constructs a new searcher.
 
@@ -58,7 +59,8 @@ class Searcher(DarjeelingEventProducer, abc.ABC):
                                      terminate_early=terminate_early,
                                      sample_size=test_sample_size,
                                      run_redundant_tests=run_redundant_tests,
-                                     dump_all=dump_all)
+                                     dump_all=dump_all,
+                                     dir_patches=dir_patches)
 
         self.__started = False
         self.__stopped = False
