@@ -30,7 +30,7 @@ _INSTRUMENTATION = (
     "void darjeeling_sighandler(int sig){\n"
     "  __gcov_flush();\n"
     "  if(sig != SIGUSR1 && sig != SIGUSR2)\n"
-    "    exit(1);\n"
+    "    exit(127);\n"
     "}\n"
     "void darjeeling_ctor (void) __attribute__ ((constructor));\n"
     "void darjeeling_ctor (void) {\n"
