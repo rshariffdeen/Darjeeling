@@ -178,7 +178,7 @@ class Evaluator(DarjeelingEventProducer):
         outcomes = self.__outcomes
         patch = candidate.to_diff()
         if self.__dump_all:
-            with open("{}/{}.patch".format(self.__dir_patches, self.__count), "w") as patch_file:
+            with open("{}/{}_darjeeling.patch".format(self.__dir_patches, candidate.id), "w") as patch_file:
                 patch_file.writelines(f"{patch}")
             self.__resources.candidates += 1
             self.__count = self.__count + 1
