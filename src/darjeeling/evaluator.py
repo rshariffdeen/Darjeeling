@@ -233,7 +233,7 @@ class Evaluator(DarjeelingEventProducer):
                                         not known_bad_patch)
 
         self.__resources.candidates += 1
-        logger.debug(f"building candidate: {candidate}")
+        logger.info(f"building candidate: {candidate}")
         self.dispatch(BuildStarted(candidate))
         timer_build = Stopwatch()
         timer_build.start()
@@ -241,9 +241,9 @@ class Evaluator(DarjeelingEventProducer):
             with self.__program.build(patch) as container:
                 outcome_build = BuildOutcome(True, timer_build.duration)
                 self.dispatch(BuildFinished(candidate, outcome_build))
-                logger.debug(f"built candidate: {candidate}")
-                logger.debug(f"build time: {timer_build.duration}")
-                logger.debug(f"executing tests for candidate: {candidate}")
+                logger.info(f"built candidate: {candidate}")
+                logger.info(f"build time: {timer_build.duration}")
+                logger.info(f"executing tests for candidate: {candidate}")
                 for test in tests:
                     if self.__terminate_early and known_bad_patch:
                         break
@@ -282,7 +282,7 @@ class Evaluator(DarjeelingEventProducer):
             raise
         finally:
             logger.info(f"evaluated candidate: {candidate}")
-            logger.debug(f"validation time: {timer_build.duration}")
+            logger.info(f"validation time: {timer_build.duration}")
 
     def evaluate(self, candidate: Candidate) -> Evaluation:
         """Evaluates a given candidate patch."""
