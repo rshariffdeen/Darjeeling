@@ -235,6 +235,7 @@ class GeneticSearcher(Searcher):
             pop = self.crossover(pop)
             pop = self.mutate(pop)
             logger.info("evaluating candidate patches...")
+            logger.info("patch space: " + str(self.num_generations))
             outcomes = {}
             yield from self.evaluate_all(pop, outcomes)
             logger.info("evaluated candidate patches")

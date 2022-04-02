@@ -122,6 +122,7 @@ class Searcher(DarjeelingEventProducer, abc.ABC):
 
         # FIXME handle duplicates!
         size = len(candidates)
+        logger.info("search space: " + str(size))
         i = 0
         num_evaluated = 0
         for i in range(min(size, self.__evaluator.num_workers)):
