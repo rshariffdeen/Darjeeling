@@ -242,6 +242,7 @@ class Evaluator(DarjeelingEventProducer):
                 outcome_build = BuildOutcome(True, timer_build.duration)
                 self.dispatch(BuildFinished(candidate, outcome_build))
                 logger.debug(f"built candidate: {candidate}")
+                logger.debug(f"build time: {timer_build.duration}")
                 logger.debug(f"executing tests for candidate: {candidate}")
                 for test in tests:
                     if self.__terminate_early and known_bad_patch:
@@ -264,12 +265,12 @@ class Evaluator(DarjeelingEventProducer):
                         test_outcomes = \
                             test_outcomes.with_outcome(test.name, test_outcome)
                         known_bad_patch |= not test_outcome.successful
-
                 return CandidateOutcome(outcome_build,
                                         test_outcomes,
                                         not known_bad_patch)
         except BuildFailure:
             logger.debug(f"failed to build candidate: {candidate}")
+            logger.debug(f"build time: {timer_build.duration}")
             outcome_build = BuildOutcome(False, timer_build.duration)
             self.dispatch(BuildFinished(candidate, outcome_build))
             return CandidateOutcome(outcome_build,
@@ -281,6 +282,7 @@ class Evaluator(DarjeelingEventProducer):
             raise
         finally:
             logger.info(f"evaluated candidate: {candidate}")
+            logger.debug(f"validation time: {timer_build.duration}")
 
     def evaluate(self, candidate: Candidate) -> Evaluation:
         """Evaluates a given candidate patch."""
