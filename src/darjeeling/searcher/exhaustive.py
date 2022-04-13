@@ -104,5 +104,6 @@ class ExhaustiveSearcher(Searcher):
 
         for candidate, outcome in self.as_evaluated():
             if outcome.is_repair:
+                logger.info('found plausible patch')
                 yield candidate
             self.evaluate(self._generate())

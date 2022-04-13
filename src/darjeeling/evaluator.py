@@ -170,7 +170,7 @@ class Evaluator(DarjeelingEventProducer):
         if not outcome.successful:
             logger.debug(f"* test failed: {test.name} ({candidate})")
         else:
-            logger.debug(f"* test passed: {test.name} ({candidate})")
+            logger.info(f"* test passed: {test.name} ({candidate})")
         self.dispatch(TestExecutionFinished(candidate, test, outcome))
         return outcome
 
