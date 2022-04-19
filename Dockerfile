@@ -55,17 +55,17 @@ RUN apt-get update \
 ENV LC_ALL C.UTF-8
 ENV LANG C.UTF-8
 
-# create docker user
+# create darjeeling user
 RUN apt-get update \
  && apt-get install --no-install-recommends -y sudo patch \
- && useradd -ms /bin/bash docker \
- && echo 'docker ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
- && adduser docker sudo \
+ && useradd -ms /bin/bash darjeeling \
+ && echo 'darjeeling ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
+ && adduser darjeeling sudo \
  && apt-get clean \
- && mkdir -p /home/docker \
- && sudo chown -R docker /home/docker \
- && sudo chown -R docker /usr/local/bin \
+ && mkdir -p /home/darjeeling \
+ && sudo chown -R darjeeling /home/darjeeling \
+ && sudo chown -R darjeeling /usr/local/bin \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-USER docker
+USER darjeeling
 
 
