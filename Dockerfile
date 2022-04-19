@@ -39,5 +39,33 @@ RUN python3 -m pip install pipenv virtualenv
 RUN git clone https://github.com/rshariffdeen/Darjeeling /opt/darjeeling
 WORKDIR /opt/darjeeling
 RUN git submodule update --init --recursive
+RUN python3.9 -m pip install .
+
+
+# install dependencies
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      docker.io \
+      gcc \
+      gcovr \
+      libc6-dev \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
+
+# create docker user
+RUN apt-get update \
+ && apt-get install --no-install-recommends -y sudo patch \
+ && useradd -ms /bin/bash docker \
+ && echo 'docker ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
+ && adduser docker sudo \
+ && apt-get clean \
+ && mkdir -p /home/docker \
+ && sudo chown -R docker /home/docker \
+ && sudo chown -R docker /usr/local/bin \
+ && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+USER docker
 
 
