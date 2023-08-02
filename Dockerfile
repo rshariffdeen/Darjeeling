@@ -57,7 +57,7 @@ ENV LANG C.UTF-8
 
 # create darjeeling user
 RUN apt-get update \
- && apt-get install --no-install-recommends -y sudo patch \
+ && apt-get install --no-install-recommends -y sudo patch cmake make libtool \
  && useradd -ms /bin/bash darjeeling \
  && echo 'darjeeling ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
  && adduser darjeeling sudo \
